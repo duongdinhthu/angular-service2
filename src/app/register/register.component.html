@@ -1,0 +1,69 @@
+<div id="register-container" class="container">
+  <form (ngSubmit)="register()">
+    <h2>Register</h2>
+
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Patient Name"
+        [(ngModel)]="registerData.patientName"
+        name="patientName"
+        required
+      />
+      <label>Patient Name</label>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="email"
+        class="form-control"
+        placeholder="Email"
+        [(ngModel)]="registerData.patientEmail"
+        name="patientEmail"
+        required
+      />
+      <label>Email Address</label>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Phone Number"
+        [(ngModel)]="registerData.patientPhone"
+        name="patientPhone"
+        required
+      />
+      <label>Phone Number</label>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="password"
+        class="form-control"
+        placeholder="Password"
+        [(ngModel)]="registerData.patientPassword"
+        name="patientPassword"
+        required
+      />
+      <label>Password</label>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="password"
+        class="form-control"
+        placeholder="Confirm Password"
+        [(ngModel)]="registerData.confirmPassword"
+        name="confirmPassword"
+        required
+      />
+      <label>Confirm Password</label>
+    </div>
+
+    <div class="form-group">
+      <button type="submit">Register</button>
+    </div>
+  </form>
+</div>

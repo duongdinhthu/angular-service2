@@ -1,58 +1,51 @@
 import {
-    HttpErrorResponse,
-    HttpEvent,
-    HttpHandler,
-    HttpInterceptor,
-    HttpRequest,
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
-import {environment} from '../../environments/environment.development';
-import {ApiHandlerService} from '../service/api/api-handler.service';
-// import {UserInfoService} from '../service/app/user-info.service';
+import { environment } from '../../environments/environment.development';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(
-        private apiHandlerService: ApiHandlerService,
-        // private userInfoService: UserInfoService,
-    ) {}
+  baseURL = environment.baseUrl;
 
-    baseURL = environment.baseURL;
+  intercept(
+    request: HttpRequest<unknown>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<unknown>> {
+    // Các yêu cầu không cần Authorization (ví dụ: đăng ký bệnh nhân)
+    const noAuthRequiredUrls = [
+      '/register/patient',
+      '/login',
+      '/change-password',
+      ''
+    ];
 
-    intercept(
-        request: HttpRequest<unknown>,
-        next: HttpHandler,
-    ): Observable<HttpEvent<unknown>> {
-        let modifiedRequest = request;
-
-        const { url } = request;
-
-        modifiedRequest = request.clone({
-            setHeaders: {
-                Authorization: `Bearer ${environment.accessToken}`,
-                Tenant: environment.tenant,
-                'Accept-Language': 'vi',
-            },
-        });
-
-        return next.handle(modifiedRequest).pipe(
-            catchError((error: HttpErrorResponse) => {
-                const hideToastList: any[] = [];
-
-                // Handle the error here
-                let showToast = true;
-
-                for (const item of hideToastList) {
-                    if (url.includes(item)) showToast = false;
-                }
-
-                if (showToast) {
-                    this.apiHandlerService.handleError(error);
-                }
-
-                return throwError(() => error);
-            }),
-        );
+    // Kiểm tra nếu URL yêu cầu không cần Authorization thì bỏ qua bước thêm token
+    if (noAuthRequiredUrls.some(url => request.url.includes(url))) {
+      return next.handle(request); // Không thêm Authorization cho những yêu cầu này
     }
+
+    // Lấy token mỗi lần intercept để đảm bảo giá trị mới nhất
+    const token = localStorage.getItem('token');
+    let modifiedRequest = request;
+
+    if (token) {
+      modifiedRequest = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+    }
+
+    return next.handle(modifiedRequest).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => error);
+      }),
+    );
+  }
 }
